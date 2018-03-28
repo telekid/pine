@@ -10,10 +10,17 @@
   :source-paths ["src/clj"]
   :profiles {:dev {:dependencies [[figwheel-sidecar "0.5.15"]
                                   [com.cemerick/piggieback "0.2.1"]]
-                   :plugins [[lein-figwheel "0.5.15"]]
+                   :plugins [[lein-figwheel "0.5.15"]
+                             [lein-npm "0.6.2"]
+                             [lein-doo "0.1.10"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :source-paths ["src/cljs"]}}
+  :aliases {"test" ["doo" "chrome"]}
   :figwheel {}
+  :npm {:devDependencies [[karma "2.0.0"]
+                          [karma-cljs-test "0.1.0"]
+                          [karma-chrome-launcher "2.2.0"]]}
+  :doo {:build "test"}
   :cljsbuild
   {:builds [{:id "main"
              :figwheel true
@@ -22,6 +29,11 @@
                         :main pine.core
                         :output-to "resources/public/js/main.js"
                         :output-dir "resources/public/js/out"
-                        :optimizations :none}}]})
+                        :optimizations :none}}
+            {:id "test"
+             :source-paths ["src/cljs" "test/cljs"]
+             :compiler {:main pine.runner
+                        :output-to "resources/public/js/testable.js"}}]})
+
 
 
