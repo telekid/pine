@@ -8,11 +8,20 @@
   :plugins [[lein-cljsbuild "1.1.7"]]
   :hooks [leiningen.cljsbuild]
   :source-paths ["src/clj"]
+  :profiles {:dev {:dependencies [[figwheel-sidecar "0.5.15"]
+                                  [com.cemerick/piggieback "0.2.1"]]
+                   :plugins [[lein-figwheel "0.5.15"]]
+                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+                   :source-paths ["src/cljs"]}}
+  :figwheel {}
   :cljsbuild
-  {:builds [{:source-paths ["src/cljs"]
-             :compiler {:output-to "resources/main.js"}}]
-
-   :repl-launch-commands
-   {"chrome" ["open" "-a" "Google Chrome"]}})
+  {:builds [{:id "main"
+             :figwheel true
+             :source-paths ["src/cljs" "dev"]
+             :compiler {:asset-path "js/out"
+                        :main pine.core
+                        :output-to "resources/public/js/main.js"
+                        :output-dir "resources/public/js/out"
+                        :optimizations :none}}]})
 
 
