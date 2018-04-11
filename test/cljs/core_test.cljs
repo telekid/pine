@@ -41,24 +41,24 @@
 
 
 (def post-nest-routes
-  [{:route :port
-    :path "/port"}
-   {:route :portfolioabc
-    :path "/portfolioabc"}
-   {:route :portfolio
-    :path "/portfolio"
-    :children [{:route :view
-                :path ["/view-" :id]
-                :children [{:route :page
-                            :path "/page"}]}
-               {:route :about-portfolio
-                :path "/about"}]}
-   {:route :home
-    :path "/home"}
-   {:route :portfolioo
-    :path "/portfolioo"}
-   {:route :port2
-    :path "/port"}])
+  [{:route-id :port
+    :test-path "/port"}
+   {:route-id :portfolioabc
+    :test-path "/portfolioabc"}
+   {:route-id :portfolio
+    :test-path "/portfolio"
+    :routes [{:route-id :view
+              :test-path ["/view-" :id]
+              :routes [{:route-id :page
+                        :test-path "/page"}]}
+             {:route-id :about-portfolio
+              :test-path "/about"}]}
+   {:route-id :home
+    :test-path "/home"}
+   {:route-id :portfolioo
+    :test-path "/portfolioo"}
+   {:route-id :port2
+    :test-path "/port"}])
 
 (deftest match-route
   (is (= (core/match-route "/port" post-nest-routes)
