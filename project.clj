@@ -10,6 +10,7 @@
   :source-paths ["src/clj" "src/cljc"]
   :profiles {:dev {:dependencies [[figwheel-sidecar "0.5.15"]
                                   [com.cemerick/piggieback "0.2.1"]
+                                  [doo "0.1.10"]
                                   [org.clojure/test.check "0.10.0-alpha2"]]
                    :plugins [[lein-figwheel "0.5.15"]
                              [lein-npm "0.6.2"]
