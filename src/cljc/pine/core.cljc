@@ -2,7 +2,7 @@
   (:require [clojure.string :as string]
             [clojure.spec.alpha :as s]
             [clojure.spec.test.alpha :as stest]
-            [clojure.spec.gen.alpha :as gen]))
+            [pine.compile :as compile :refer [compile-routes]]))
 
 (s/def ::full-path string?)
 
@@ -114,19 +114,16 @@
 (extend-protocol TestPath
   #?(:clj java.lang.String
      :cljs js/String)
-
   (match-subpath [test subpath]
     (when (string/starts-with? subpath test)
       (SubpathMatch. (let [remainder (string/replace-first subpath test "")]
                        (when (not (empty? remainder))
                          remainder))
                      nil)))
-  (build-subpath [test params] test))
+  (build-subpath [test params] test)
 
-(extend-protocol TestPath
   #?(:clj clojure.lang.PersistentVector
      :cljs cljs.core/PersistentVector)
-
   (match-subpath [test subpath]
     ;; We only want to search up until the first trailing slash,
     ;; not including any trailing slash at the start of the string
@@ -136,10 +133,10 @@
           remainder (match 2)]
       (when-let [params (traverse-vector-path test focus {})]
         (SubpathMatch. remainder params))))
-
   (build-subpath [test params]
     (string/join (map #(condp = (type %)
-                         java.lang.String %
+                         #?(:clj java.lang.String
+                            :cljs js/String) %
                          clojure.lang.Keyword (str (% params)))
                       test))))
 
@@ -165,3 +162,7 @@
               (recur (rest test)
                      remainder
                      (assoc params current match)))))))))
+
+(defn path-for [route-id params routes]
+  (let [compiled (compile-routes routes)]
+    (string/join (map #(build-subpath (:test-path %) ((:route-id %) params)) (route-id compiled)))))
