@@ -1,5 +1,6 @@
 (ns pine.compile-test
-  (:require [cljs.test :refer-macros [deftest is testing run-tests]]
+  (:require #?(:cljs [cljs.test :refer-macros [deftest is testing run-tests]]
+               :clj [clojure.test :refer :all])
             [pine.compile :as compile]))
 
 (def post-nest-routes
