@@ -13,3 +13,4 @@ pom.xml.asc
 /resources/public/js
 figwheel_server.log
 /node_modules
+.DS_Store
