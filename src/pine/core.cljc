@@ -1,8 +1,6 @@
 (ns pine.core
   (:require [clojure.string :as string]
-            [clojure.spec.alpha :as s]
-            [clojure.spec.test.alpha :as stest]
-            [pine.compile :as compile :refer [compile-routes]]))
+            [clojure.spec.alpha :as s]))
 
 (s/def ::full-path string?)
 
@@ -33,7 +31,8 @@
          push-result
          make-result
          push-children
-         reduce-results)
+         reduce-results
+         routes-by-key)
 
 (s/fdef match-route
         :args (s/cat :path ::full-path :routes ::routes)
@@ -137,7 +136,8 @@
     (string/join (map #(condp = (type %)
                          #?(:clj java.lang.String
                             :cljs js/String) %
-                         clojure.lang.Keyword (str (% params)))
+                         #?(:clj clojure.lang.Keyword
+                            :cljs cljs.core/Keyword) (str (% params)))
                       test))))
 
 (defn- traverse-vector-path [test path params]
@@ -164,5 +164,23 @@
                      (assoc params current match)))))))))
 
 (defn path-for [route-id params routes]
-  (let [compiled (compile-routes routes)]
+  (let [compiled (routes-by-key routes)]
     (string/join (map #(build-subpath (:test-path %) ((:route-id %) params)) (route-id compiled)))))
+
+(defn routes-by-key* [routes-stack result-stack result]
+  (when-let [child-set (first routes-stack)]
+    (if (empty? child-set)
+      (if (not (empty? (rest routes-stack)))
+        (recur (into [] (rest routes-stack)) (pop result-stack) result)
+        result)
+      (let [current-route (first child-set)
+            child-routes (:routes current-route)
+            remaining-routes (update-in routes-stack [0] #(into [] (rest %)))
+            next-result-stack (conj result-stack (dissoc current-route :routes))
+            next-result (assoc result (:route-id current-route) next-result-stack)]
+        (if child-routes
+          (recur (push-children remaining-routes child-routes) next-result-stack next-result)
+          (recur remaining-routes (pop next-result-stack) next-result))))))
+
+(defn routes-by-key [routes]
+  (routes-by-key* (push-children [] routes) [] {}))
