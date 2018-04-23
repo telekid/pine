@@ -1,4 +1,4 @@
-(defproject pine "0.1.0-SNAPSHOT"
+(defproject pine "0.1.0"
   :description "A Clojure/ClojureScript router designed for universal applications."
   :url "https://github.com/telekid/pine"
   :license {:name "The MIT License"
