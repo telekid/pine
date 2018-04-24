@@ -2,6 +2,7 @@
 
 **__Note:__ Pine is pre-alpha software. Please don't use it in production.**
 
+[![Clojars Project](https://img.shields.io/clojars/v/telekid/pine.svg)](https://clojars.org/telekid/pine)
 [![Build Status](https://travis-ci.org/telekid/pine.svg?branch=master)](https://travis-ci.org/telekid/pine)
 ![Last Released](https://img.shields.io/github/last-commit/google/skia.svg)
 
