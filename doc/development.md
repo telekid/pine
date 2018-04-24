@@ -35,3 +35,4 @@ Then, deploy pine to Clojars with `lein deploy clojars`.
 ## Troubleshooting
 - Make sure you've defined `git config --global user.signingkey YOURKEY!!`
 - Ensure you've specified `{:user {:signing {:gpg-key "YOURKEY!!"}}}` in `~/.lein/profiles.clj`
+- If you see an error like `Could not transfer metadata [...] ReasonPhrase: Forbidden - the version in the pom (0.1.3-DIRTY) does not match the version you are deploying to (0.1.3).`, try deleting `pom.xml` and releasing again
