@@ -1,25 +1,17 @@
-(defproject telekid/pine "0.1.1-SNAPSHOT"
+(defproject telekid/pine :lein-v
   :description "A Clojure/ClojureScript router designed for universal applications."
   :url "https://github.com/telekid/pine"
   :license {:name "The MIT License"
             :url "https://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.238"]]
-
-  :deploy-repositories [["releases"  {:sign-releases false :url "https://clojars.org"}]
-                        ["snapshots" {:sign-releases false :url "https://clojars.org"}]]
+  :plugins [[com.roomkey/lein-v "6.3.0"]]
+  :source-paths ["src"]
 
   :release-tasks [["vcs" "assert-committed"]
-                  ["change" "version"
-                   "leiningen.release/bump-version" "release"]
-                  ["vcs" "commit"]
-                  ["vcs" "tag" "v" "--no-sign"]
-                  ["deploy"]
-                  ["change" "version" "leiningen.release/bump-version"]
-                  ["vcs" "commit"]
+                  ["v" "update"] ;; compute new version & tag it
                   ["vcs" "push"]]
 
-  :source-paths ["src"]
   :profiles {:dev {:dependencies [[figwheel-sidecar "0.5.15"]
                                   [com.cemerick/piggieback "0.2.1"]
                                   [doo "0.1.10"]
@@ -30,6 +22,7 @@
                              [lein-doo "0.1.10"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
   :aliases {"test-cljs" ["doo" "chrome"]}
+  :prep-tasks [["v" "cache" "src"]]
   :figwheel {}
   :npm {:devDependencies [[karma "2.0.0"]
                           [karma-cljs-test "0.1.0"]
