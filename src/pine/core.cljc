@@ -98,6 +98,18 @@
      :cljs number)
   (to-string [param] (str param)))
 
+(defprotocol SequentialTestPathItem
+  (make-segment [item subparams]))
+
+(extend-protocol SequentialTestPathItem
+  #?(:clj java.lang.String
+     :cljs string)
+  (make-segment [item subparams] item)
+
+  #?(:clj clojure.lang.Keyword
+     :cljs cljs.core/Keyword)
+  (make-segment [item subparams] (to-string (item subparams))))
+
 (defrecord SubpathMatch [remaining-path params])
 
 (s/fdef match-subpath
@@ -127,7 +139,7 @@
 
 (extend-protocol TestPath
   #?(:clj java.lang.String
-     :cljs js/String)
+     :cljs string)
   (match-subpath [test subpath]
     (when (string/starts-with? subpath test)
       (SubpathMatch. (let [remainder (string/replace-first subpath test "")]
@@ -148,12 +160,7 @@
       (when-let [params (traverse-vector-path test focus {})]
         (SubpathMatch. remainder params))))
   (build-subpath [test params]
-    (string/join (map #(condp = (type %)
-                         #?(:clj java.lang.String
-                            :cljs string) %
-                         #?(:clj clojure.lang.Keyword
-                            :cljs cljs.core/Keyword) (to-string (% params)))
-                      test))))
+    (string/join (map #(make-segment % params) test))))
 
 (defn- traverse-vector-path [test path params]
   (if (empty? test)
