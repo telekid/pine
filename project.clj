@@ -23,7 +23,6 @@
                              [lein-doo "0.1.10"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
   :aliases {"test-cljs" ["doo" "chrome"]}
-  :prep-tasks [["v" "cache" "src"]]
   :figwheel {}
   :npm {:devDependencies [[karma "2.0.0"]
                           [karma-cljs-test "0.1.0"]
