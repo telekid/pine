@@ -3,11 +3,6 @@
             [reagent.core :as reagent]
             [pine.router :as router]))
 
-(defn active?
-  "Adds `active-class` to links when their state is :active."
-  [active-class link]
-  (update link 1 #(merge % {:active-class active-class})))
-
 (defn link
   "Create a router-aware link."
   [{:keys [route-id params active-class]
@@ -15,15 +10,15 @@
     :or {params {}}}
    & children]
   (let [active-routes (re-frame/subscribe [:pine/active-routes])]
-    [:a (-> keys
-            (dissoc :route-id :active-class :params)
-            (assoc :href (router/path-for route-id params))
-            ((fn [ks]
-               (if (and (contains? @active-routes route-id)
-                        active-class)
-                 (update-in ks [:class-name] #(str % " " active-class))
-                 ks))))
-     children]))
+    (into [:a (-> keys
+                  (dissoc :route-id :active-class :params)
+                  (assoc :href (router/path-for route-id params))
+                  ((fn [ks]
+                     (if (and (contains? @active-routes route-id)
+                              active-class)
+                       (update-in ks [:class-name] #(str % " " active-class))
+                       ks))))]
+          children)))
 
 (defn view
   "Insert a component into the component tree.
