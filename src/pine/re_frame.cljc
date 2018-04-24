@@ -12,3 +12,9 @@
  :<- [:pine/location]
  (fn [location _]
    (:active location)))
+
+(re-frame/reg-sub
+ :pine/route-params
+ :<- [:pine/location]
+ (fn [location _]
+   (:params location)))
