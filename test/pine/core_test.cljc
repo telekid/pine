@@ -54,6 +54,21 @@
   (is (= (core/match-route "/portfolioo" routes)
          {:active #{:portfolioo}})))
 
+
+(deftest path-for
+  (is (= (core/path-for :portfolio {} routes) "/portfolio"))
+
+  (is (= (core/path-for :about-portfolio {} routes) "/portfolio/about"))
+
+  (is (= (core/path-for :view {:view {:id "home"}} routes) "/portfolio/view-home"))
+
+  (is (= (core/path-for :view {:view {:id 123}} routes) "/portfolio/view-123"))
+
+  (is (= (core/path-for :view {:view {:id :untapt}} routes) "/portfolio/view-untapt"))
+
+  (is (= (core/path-for :home {} routes) "/home")))
+
+
 (def keyed-routes
   {:port [{:route-id :port :test-path "/port"}]
    :portfolioabc [{:route-id :portfolioabc :test-path "/portfolioabc"}]

@@ -82,6 +82,21 @@
 
 (declare traverse-vector-path)
 
+(defprotocol PathParam
+  (to-string [param]))
+
+(extend-protocol PathParam
+  #?(:clj java.lang.String
+     :cljs string)
+  (to-string [param] param)
+
+  #?(:clj clojure.lang.Keyword
+     :cljs cljs.core/Keyword)
+  (to-string [param] (name param))
+
+  #?(:clj java.lang.Long
+     :cljs number)
+  (to-string [param] (str param)))
 
 (defrecord SubpathMatch [remaining-path params])
 
@@ -135,9 +150,9 @@
   (build-subpath [test params]
     (string/join (map #(condp = (type %)
                          #?(:clj java.lang.String
-                            :cljs js/String) %
+                            :cljs string) %
                          #?(:clj clojure.lang.Keyword
-                            :cljs cljs.core/Keyword) (str (% params)))
+                            :cljs cljs.core/Keyword) (to-string (% params)))
                       test))))
 
 (defn- traverse-vector-path [test path params]
