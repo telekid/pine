@@ -23,15 +23,24 @@
 (defn view
   "Insert a component into the component tree.
 
-  `route` is the route name for this component.
-  `component` is either a keyword identifier for the component,
-  or the component itself.
+  `route-id` is the route name for this component.
+
+  Following `route-id`, you may include a list of keywords
+  indicating route segments that should suppress rendering.
+
+  Finally, you may include one or more components to be
+  rendered into the component.
 
   e.g.
   [view :home [home]]
+  [view :home :home-welcome [home]]
+  [view :home :home-welcome [home] [goat]]
   "
-  [route-id & children]
-  (when (contains? @(re-frame/subscribe [:pine/active-routes])
-                   route-id)
-    (into [:<>] children)))
 
+  [route-id & vargs]
+  (let [suppress (into #{} (take-while keyword? vargs))
+        children (drop-while keyword? vargs)
+        active-routes @(re-frame/subscribe [:pine/active-routes])]
+    (when (and (contains? active-routes route-id)
+               (empty? (clojure.set/intersection suppress active-routes)))
+      (into [:<>] children))))
