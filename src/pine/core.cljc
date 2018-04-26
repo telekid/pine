@@ -161,7 +161,14 @@
       (when-let [params (traverse-vector-path test focus {})]
         (SubpathMatch. remainder params))))
   (build-subpath [test params]
-    (string/join (map #(make-segment % params) test))))
+    (string/join (map #(make-segment % params) test)))
+
+  #?(:clj java.lang.Boolean
+     :cljs boolean)
+    (match-subpath [test _]
+      (SubpathMatch. nil nil))
+
+    (build-subpath [_ _] ""))
 
 (defn- traverse-vector-path [test path params]
   (if (empty? test)

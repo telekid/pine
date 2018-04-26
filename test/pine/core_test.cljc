@@ -21,7 +21,11 @@
    {:route-id :portfolioo
     :test-path "/portfolioo"}
    {:route-id :port2
-    :test-path "/port"}])
+    :test-path "/port"}
+   {:route-id :public
+    :test-path "/public"
+    :routes [{:route-id :public-item
+              :test-path true}]}])
 
 (deftest match-route
   (is (= (core/match-route "/port" routes)
@@ -52,8 +56,13 @@
          {:active #{:home} :route :home}))
 
   (is (= (core/match-route "/portfolioo" routes)
-         {:active #{:portfolioo} :route :portfolioo})))
+         {:active #{:portfolioo} :route :portfolioo}))
 
+  (is (= (core/match-route "/public" routes)
+         {:active #{:public} :route :public}))
+
+  (is (= (core/match-route "/public/style.css" routes)
+         {:active #{:public :public-item} :route :public-item})))
 
 (deftest path-for
   (is (= (core/path-for :portfolio {} routes) "/portfolio"))
@@ -82,7 +91,10 @@
                      {:route-id :about-portfolio :test-path "/about"}]
    :home [{:route-id :home :test-path "/home"}]
    :portfolioo [{:route-id :portfolioo :test-path "/portfolioo"}]
-   :port2 [{:route-id :port2 :test-path "/port"}]})
+   :port2 [{:route-id :port2 :test-path "/port"}]
+   :public [{:route-id :public :test-path "/public"}]
+   :public-item [{:route-id :public :test-path "/public"}
+                 {:route-id :public-item :test-path true}]})
 
 (deftest routes-by-key
   (is (= (core/routes-by-key routes)
