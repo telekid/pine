@@ -54,7 +54,8 @@
                                          (:params match-result)
                                          (:route-id current-route))]
              (if (nil? (:remaining-path match-result))
-               (reduce-results (rest (conj result-stack new-result)))
+               (assoc (reduce-results (rest (conj result-stack new-result)))
+                      :route (:route-id current-route))
                (if (:routes current-route)
                  (recur (push-children remaining-routes (:routes current-route))
                         (push-result result-stack new-result))

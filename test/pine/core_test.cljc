@@ -25,13 +25,13 @@
 
 (deftest match-route
   (is (= (core/match-route "/port" routes)
-         {:active #{:port}}))
+         {:active #{:port} :route :port}))
 
   (is (= (core/match-route "/portfolioabc" routes)
-         {:active #{:portfolioabc}}))
+         {:active #{:portfolioabc} :route :portfolioabc}))
 
   (is (= (core/match-route "/portfolio" routes)
-         {:active #{:portfolio}}))
+         {:active #{:portfolio} :route :portfolio}))
 
   (is (= (core/match-route "/portfolio/view" routes)
          nil))
@@ -40,19 +40,19 @@
          nil))
 
   (is (= (core/match-route "/portfolio/view-123" routes)
-         {:params {:view {:id "123"}} :active #{:portfolio :view}}))
+         {:params {:view {:id "123"}} :active #{:portfolio :view} :route :view}))
 
   (is (= (core/match-route "/portfolio/view-123/page" routes)
-         {:params {:view {:id "123"}} :active #{:portfolio :view :page}}))
+         {:params {:view {:id "123"}} :active #{:portfolio :view :page} :route :page}))
 
   (is (= (core/match-route "/portfolio/about" routes)
-         {:active #{:portfolio :about-portfolio}}))
+         {:active #{:portfolio :about-portfolio} :route :about-portfolio}))
 
   (is (= (core/match-route "/home" routes)
-         {:active #{:home}}))
+         {:active #{:home} :route :home}))
 
   (is (= (core/match-route "/portfolioo" routes)
-         {:active #{:portfolioo}})))
+         {:active #{:portfolioo} :route :portfolioo})))
 
 
 (deftest path-for
