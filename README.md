@@ -3,7 +3,7 @@
 **__Note:__ Pine is pre-alpha software. Please don't use it in production.**
 
 [![Clojars Project](https://img.shields.io/clojars/v/telekid/pine.svg)](https://clojars.org/telekid/pine)
-[![Build Status](https://travis-ci.org/telekid/pine.svg?branch=master)](https://travis-ci.org/telekid/pine)
+[![CircleCI](https://circleci.com/gh/telekid/pine/tree/master.svg?style=svg)](https://circleci.com/gh/telekid/pine/tree/master)
 ![Last Released](https://img.shields.io/github/last-commit/google/skia.svg)
 
 For a proof-of-concept re-frame application that makes use of pine, see [Pine App](https://github.com/telekid/pine-app).

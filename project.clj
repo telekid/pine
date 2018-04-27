@@ -22,12 +22,13 @@
                              [lein-cljsbuild "1.1.7"]
                              [lein-doo "0.1.10"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
-  :aliases {"test-cljs" ["doo" "chrome"]}
+  :aliases {"test-cljs" ["doo" "chrome-headless" "test" "once"]}
   :figwheel {}
   :npm {:devDependencies [[karma "2.0.0"]
                           [karma-cljs-test "0.1.0"]
                           [karma-chrome-launcher "2.2.0"]]}
-  :doo {:build "test-cljs"}
+  :doo {:build "test"
+        :paths {:karma "./node_modules/karma/bin/karma"}}
   :cljsbuild
   {:builds [{:id "main"
              :figwheel true
@@ -37,7 +38,7 @@
                         :output-to "resources/public/js/main.js"
                         :output-dir "resources/public/js/out"
                         :optimizations :none}}
-            {:id "test-cljs"
+            {:id "test"
              :source-paths ["src" "test"]
              :compiler {:main "pine.runner"
                         :output-to "resources/public/js/testable.js"}}]})
