@@ -6,19 +6,19 @@
 
 (s/def ::routes (s/coll-of ::route))
 
-(s/def ::route (s/keys :req-un [::route-id ::test-path]
+(s/def ::route (s/keys :req-un [::route-id ::pattern]
                        :opt [::children]))
 
 (s/def ::route-id keyword?)
 
-(s/def ::string-test string?)
+(s/def ::string-pattern string?)
 
-(s/def ::vector-test vector?)
+(s/def ::seq-pattern vector?)
 
 (s/def ::params map?)
 
-(s/def ::test-path (s/or :vector-test ::vector-test
-                         :string-test ::string-test))
+(s/def ::pattern (s/or :seq-pattern ::seq-pattern
+                       :string-pattern ::string-pattern))
 
 (s/def ::match-result (s/keys :req-un [::active]
                               :opt-un [::params]))
@@ -48,7 +48,7 @@
            remaining-routes (update-in routes [0] #(into [] (rest %)))]
        (if (empty? child-set)
          (recur (into [] (rest remaining-routes)) (pop-result result-stack))
-         (if-let [match-result (match-subpath (:test-path current-route)
+         (if-let [match-result (match-subpath (:pattern current-route)
                                               (:remaining-path last-result))]
            (let [new-result (make-result (:remaining-path match-result)
                                          (:params match-result)
@@ -81,7 +81,7 @@
                  true (update-in [:active] conj (:route-id %2))))
           {:active #{}} results))
 
-(declare traverse-vector-path)
+(declare traverse-seq-path)
 
 (defprotocol PathParam
   (to-string [param]))
@@ -99,10 +99,10 @@
      :cljs number)
   (to-string [param] (str param)))
 
-(defprotocol SequentialTestPathItem
+(defprotocol SeqPatternItem
   (make-segment [item subparams]))
 
-(extend-protocol SequentialTestPathItem
+(extend-protocol SeqPatternItem
   #?(:clj java.lang.String
      :cljs string)
   (make-segment [item subparams] item)
@@ -113,89 +113,82 @@
 
 (defrecord SubpathMatch [remaining-path params])
 
-(s/fdef match-subpath
-        :args (s/cat :test ::test-path :subpath ::full-path)
-        :ret ::match-result)
+(defprotocol Pattern
+  (match-subpath [pattern subpath]
+    "Check to see if a `subpath` matches a `pattern`.
 
-(s/fdef build-subpath
-        :args (s/cat :test ::test-path :params ::params))
-
-(defprotocol TestPath
-  (match-subpath [test subpath]
-    "Check to see if a `subpath` matches a `test`.
-
-     If the subpath matches the test, break down the test
+     If the subpath matches the pattern, break down the pattern
      params and return an object with a next-subpath and
      the params.
 
      returns nil if not a match.
 
-     If `test` is a string, match against that string.
+     If `pattern` is a string, match against that string.
 
-     If `test` is a vector, match against strings in the vector,
+     If `pattern` is a vector, match against strings in the vector,
      and transform :keywords into route parameters.
      Note: Keyword matches will not proceed past '/'.")
 
-  (build-subpath [test params]))
+  (build-subpath [pattern params]))
 
-(extend-protocol TestPath
+(extend-protocol Pattern
   #?(:clj java.lang.String
      :cljs string)
-  (match-subpath [test subpath]
-    (when (string/starts-with? subpath test)
-      (SubpathMatch. (let [remainder (string/replace-first subpath test "")]
+  (match-subpath [pattern subpath]
+    (when (string/starts-with? subpath pattern)
+      (SubpathMatch. (let [remainder (string/replace-first subpath pattern "")]
                        (when (not (empty? remainder))
                          remainder))
                      nil)))
-  (build-subpath [test params] test)
+  (build-subpath [pattern params] pattern)
 
   #?(:clj clojure.lang.PersistentVector
      :cljs cljs.core/PersistentVector)
-  (match-subpath [test subpath]
+  (match-subpath [pattern subpath]
     ;; We only want to search up until the first trailing slash,
     ;; not including any trailing slash at the start of the string
     ;; TODO: This regex should just be a conditional
     (let [match (re-find (re-pattern "(\\/?[^\\/\\n]+)(\\/.*)?") subpath)
           focus (second match)
           remainder (match 2)]
-      (when-let [params (traverse-vector-path test focus {})]
+      (when-let [params (traverse-seq-path pattern focus {})]
         (SubpathMatch. remainder params))))
-  (build-subpath [test params]
-    (string/join (map #(make-segment % params) test)))
+  (build-subpath [pattern params]
+    (string/join (map #(make-segment % params) pattern)))
 
   #?(:clj java.lang.Boolean
      :cljs boolean)
-    (match-subpath [test _]
+    (match-subpath [pattern _]
       (SubpathMatch. nil nil))
 
     (build-subpath [_ _] ""))
 
-(defn- traverse-vector-path [test path params]
-  (if (empty? test)
+(defn- traverse-seq-path [pattern path params]
+  (if (empty? pattern)
     params
-    (let [current (first test)]
+    (let [current (first pattern)]
       (cond
         (= (type current) #?(:clj java.lang.String
                              :cljs js/String))
         (let [next-string (string/replace-first path current "")]
           (when (and (string/starts-with? path current) (not (empty? next-string)))
-            (recur (rest test)
+            (recur (rest pattern)
                   next-string
                   params)))
         (= (type current) #?(:clj clojure.lang.Keyword
                              :cljs cljs.core/Keyword))
-        (let [lookahead (or (second test) "")]
+        (let [lookahead (or (second pattern) "")]
           (when (string/includes? path lookahead)
             (let [regex-result (re-find (re-pattern (str "(.*)(" lookahead ".*)")) path)
                   match (second regex-result)
                   remainder (regex-result 2)]
-              (recur (rest test)
+              (recur (rest pattern)
                      remainder
                      (assoc params current match)))))))))
 
 (defn path-for [route-id params routes]
   (let [compiled (routes-by-key routes)]
-    (string/join (map #(build-subpath (:test-path %) ((:route-id %) params)) (route-id compiled)))))
+    (string/join (map #(build-subpath (:pattern %) ((:route-id %) params)) (route-id compiled)))))
 
 (defn routes-by-key* [routes-stack result-stack result]
   (when-let [child-set (first routes-stack)]

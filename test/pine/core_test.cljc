@@ -5,27 +5,27 @@
 
 (def routes
   [{:route-id :port
-    :test-path "/port"}
+    :pattern "/port"}
    {:route-id :portfolioabc
-    :test-path "/portfolioabc"}
+    :pattern "/portfolioabc"}
    {:route-id :portfolio
-    :test-path "/portfolio"
+    :pattern "/portfolio"
     :routes [{:route-id :view
-              :test-path ["/view-" :id]
+              :pattern ["/view-" :id]
               :routes [{:route-id :page
-                        :test-path "/page"}]}
+                        :pattern "/page"}]}
              {:route-id :about-portfolio
-              :test-path "/about"}]}
+              :pattern "/about"}]}
    {:route-id :home
-    :test-path "/home"}
+    :pattern "/home"}
    {:route-id :portfolioo
-    :test-path "/portfolioo"}
+    :pattern "/portfolioo"}
    {:route-id :port2
-    :test-path "/port"}
+    :pattern "/port"}
    {:route-id :public
-    :test-path "/public"
+    :pattern "/public"
     :routes [{:route-id :public-item
-              :test-path true}]}])
+              :pattern true}]}])
 
 (deftest match-route
   (is (= (core/match-route "/port" routes)
@@ -79,22 +79,22 @@
 
 
 (def keyed-routes
-  {:port [{:route-id :port :test-path "/port"}]
-   :portfolioabc [{:route-id :portfolioabc :test-path "/portfolioabc"}]
-   :portfolio [{:route-id :portfolio :test-path "/portfolio"}]
-   :view [{:route-id :portfolio :test-path "/portfolio"}
-          {:route-id :view :test-path ["/view-" :id]}]
-   :page [{:route-id :portfolio :test-path "/portfolio"}
-          {:route-id :view :test-path ["/view-" :id]}
-          {:route-id :page :test-path "/page"}]
-   :about-portfolio [{:route-id :portfolio :test-path "/portfolio"}
-                     {:route-id :about-portfolio :test-path "/about"}]
-   :home [{:route-id :home :test-path "/home"}]
-   :portfolioo [{:route-id :portfolioo :test-path "/portfolioo"}]
-   :port2 [{:route-id :port2 :test-path "/port"}]
-   :public [{:route-id :public :test-path "/public"}]
-   :public-item [{:route-id :public :test-path "/public"}
-                 {:route-id :public-item :test-path true}]})
+  {:port [{:route-id :port :pattern "/port"}]
+   :portfolioabc [{:route-id :portfolioabc :pattern "/portfolioabc"}]
+   :portfolio [{:route-id :portfolio :pattern "/portfolio"}]
+   :view [{:route-id :portfolio :pattern "/portfolio"}
+          {:route-id :view :pattern ["/view-" :id]}]
+   :page [{:route-id :portfolio :pattern "/portfolio"}
+          {:route-id :view :pattern ["/view-" :id]}
+          {:route-id :page :pattern "/page"}]
+   :about-portfolio [{:route-id :portfolio :pattern "/portfolio"}
+                     {:route-id :about-portfolio :pattern "/about"}]
+   :home [{:route-id :home :pattern "/home"}]
+   :portfolioo [{:route-id :portfolioo :pattern "/portfolioo"}]
+   :port2 [{:route-id :port2 :pattern "/port"}]
+   :public [{:route-id :public :pattern "/public"}]
+   :public-item [{:route-id :public :pattern "/public"}
+                 {:route-id :public-item :pattern true}]})
 
 (deftest routes-by-key
   (is (= (core/routes-by-key routes)
