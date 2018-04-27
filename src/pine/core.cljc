@@ -100,7 +100,11 @@
   (to-string [param] (str param)))
 
 (defprotocol SeqPatternItem
-  (make-segment [item subparams]))
+  (make-segment
+    "Construct a path segment item with given params.
+
+     Throws if required param is missing."
+    [item subparams]))
 
 (extend-protocol SeqPatternItem
   #?(:clj java.lang.String
@@ -109,7 +113,11 @@
 
   #?(:clj clojure.lang.Keyword
      :cljs cljs.core/Keyword)
-  (make-segment [item subparams] (to-string (item subparams))))
+  (make-segment [item subparams]
+    (if-let [param (item subparams)]
+      (to-string param)
+      (throw (ex-info "Missing parameter required to make path segment."
+                      {:missing-param item})))))
 
 (defrecord SubpathMatch [remaining-path params])
 

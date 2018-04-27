@@ -75,8 +75,15 @@
 
   (is (= (core/path-for :view {:view {:id :untapt}} routes) "/portfolio/view-untapt"))
 
-  (is (= (core/path-for :home {} routes) "/home")))
+  (is (= (core/path-for :home {} routes) "/home"))
 
+  (is (thrown? #?(:clj Exception
+                  :cljs :default)
+               (core/path-for :view {:view {}} routes)))
+
+  (is (thrown? #?(:clj Exception
+                  :cljs :default)
+               (core/path-for :view {:cat {}} routes))))
 
 (def keyed-routes
   {:port [{:route-id :port :pattern "/port"}]
