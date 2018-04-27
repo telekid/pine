@@ -38,7 +38,11 @@
         :args (s/cat :path ::full-path :routes ::routes)
         :ret ::match-result)
 
-(defn match-route [path routes] (match-route* (push-children [] routes) [(make-result path nil nil)]))
+(defn match-route
+  "Match a `path` against a `routes` definition."
+  [path routes]
+
+  (match-route* (push-children [] routes) [(make-result path nil nil)]))
 
 (defn- match-route*
   ([routes result-stack]
@@ -84,7 +88,20 @@
 (declare traverse-seq-path)
 
 (defprotocol PathParam
-  (to-string [param]))
+  "A parameter of a path item."
+
+  (to-string [param]
+    "Convert a path param to a string for path construction.
+
+     Example:
+     (to-string :home)
+     \"home\"
+
+     (to-string 123)
+     \"123\"
+
+     (to-string \"abc\")
+     \"abc\""))
 
 (extend-protocol PathParam
   #?(:clj java.lang.String
@@ -100,20 +117,21 @@
   (to-string [param] (str param)))
 
 (defprotocol SeqPatternItem
-  (make-segment
+  "An item within a sequential pattern."
+
+  (segment-item [item subparams]
     "Construct a path segment item with given params.
 
-     Throws if required param is missing."
-    [item subparams]))
+     Throws if required param is missing."))
 
 (extend-protocol SeqPatternItem
   #?(:clj java.lang.String
      :cljs string)
-  (make-segment [item subparams] item)
+  (segment-item [item subparams] item)
 
   #?(:clj clojure.lang.Keyword
      :cljs cljs.core/Keyword)
-  (make-segment [item subparams]
+  (segment-item [item subparams]
     (if-let [param (item subparams)]
       (to-string param)
       (throw (ex-info "Missing parameter required to make path segment."
@@ -122,6 +140,8 @@
 (defrecord SubpathMatch [remaining-path params])
 
 (defprotocol Pattern
+  "A pattern for a route segment."
+
   (match-subpath [pattern subpath]
     "Check to see if a `subpath` matches a `pattern`.
 
@@ -137,7 +157,8 @@
      and transform :keywords into route parameters.
      Note: Keyword matches will not proceed past '/'.")
 
-  (build-subpath [pattern params]))
+  (build-subpath [pattern params]
+    "Constructs a route segment from a pattern and params."))
 
 (extend-protocol Pattern
   #?(:clj java.lang.String
@@ -162,7 +183,7 @@
       (when-let [params (traverse-seq-path pattern focus {})]
         (SubpathMatch. remainder params))))
   (build-subpath [pattern params]
-    (string/join (map #(make-segment % params) pattern)))
+    (string/join (map #(segment-item % params) pattern)))
 
   #?(:clj java.lang.Boolean
      :cljs boolean)
@@ -194,11 +215,14 @@
                      remainder
                      (assoc params current match)))))))))
 
-(defn path-for [route-id params routes]
+(defn path-for
+  "Create a path from a `route-id`, some `params` and a `routes` definition."
+  [route-id params routes]
+
   (let [compiled (routes-by-key routes)]
     (string/join (map #(build-subpath (:pattern %) ((:route-id %) params)) (route-id compiled)))))
 
-(defn routes-by-key* [routes-stack result-stack result]
+(defn- routes-by-key* [routes-stack result-stack result]
   (when-let [child-set (first routes-stack)]
     (if (empty? child-set)
       (if (not (empty? (rest routes-stack)))
@@ -213,5 +237,10 @@
           (recur (push-children remaining-routes child-routes) next-result-stack next-result)
           (recur remaining-routes (pop next-result-stack) next-result))))))
 
-(defn routes-by-key [routes]
+(defn routes-by-key
+  "Convert a `routes` definition to a map of all routes keyed by :route-id.
+
+   Primarily used by path-for. May have other uses."
+  [routes]
+
   (routes-by-key* (push-children [] routes) [] {}))
