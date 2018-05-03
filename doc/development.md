@@ -9,7 +9,7 @@ When prompted, choose Figwheel as the repl type.
 To run Clojure tests, run `lein test` at the command line.
 
 To run ClojureScript tests, run `lein test-cljs` at the command line.
-Note: You may need to run `npm install -g karma-cli`
+Note: You may need to run `lein npm install` first.
 
 
 # Releasing pine
